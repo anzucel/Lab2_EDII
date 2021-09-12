@@ -4,9 +4,10 @@ using System.Text;
 
 namespace Huffman
 {
-    interface IHuffman
+    public interface IHuffman
     {
-        void Comprimir(string texto);
-        void Descomprimir(string texto);
+        // Devuelve en una cadena el texto comprimido o descomprimido
+        string Comprimir();
+        string Descomprimir();
     }
 }

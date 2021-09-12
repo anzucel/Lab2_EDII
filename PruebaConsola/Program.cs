@@ -1,4 +1,5 @@
 ﻿using System;
+using Huffman;
 
 namespace PruebaConsola
 {
@@ -6,7 +7,13 @@ namespace PruebaConsola
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            string cadena_texto = "MISSISSIPPI RIVER";
+            string msj_comprimido;
+            string msj_descomprimido;
+
+            IHuffman huffman = new Huffman.Huffman(cadena_texto);
+            msj_comprimido = huffman.Comprimir();
+            msj_descomprimido = huffman.Descomprimir();
         }
     }
 }
