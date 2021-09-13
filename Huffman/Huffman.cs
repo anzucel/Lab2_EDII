@@ -8,7 +8,7 @@ namespace Huffman
         //texto original 
         string Texto { get; set; }
         char[] ArrayTexto { get; set; } //texto completo 
-        ListaDoble<NodoHuffman> Conteo { get; set; }
+        ListaDoble<NodoHuffman> Conteo { get; set; } //Guarda el caracter y la frecuencia
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
@@ -115,13 +115,49 @@ namespace Huffman
         }
 
 
-        //Parte de descomprimir
+        //Parte de descomprimir---------------------------------------------
         public string Descomprimir()
         {
+            DescomprimirCaracteres();
             throw new NotImplementedException();
         }
 
-      
+        private void DescomprimirCaracteres()
+        {
+            
+            int Bits =Convert.ToInt32 (ArrayTexto[0]);// Números de bits que se usaron 
+            
+
+            int cont = 1; //Letras y sus frecuencias
+            while (Convert.ToString(ArrayTexto[cont]) != "\n")
+            {
+                int valor = 0; //frecuencia del caracter
+                NodoHuffman Caracter = new NodoHuffman();
+                Caracter.caracter = ArrayTexto[cont];
+                cont++;
+
+                for (int i = 0; i < Bits; i++) ;
+                {
+                    valor = valor + ArrayTexto[cont];
+                    cont++;
+                }
+                Caracter.valor = valor;
+                Conteo.InsertarFinal(Caracter);
+            }
+            cont++;
+            Texto = "";
+            while (cont < ArrayTexto.Length)
+            {
+               string txt = DecimalBinario(ArrayTexto[cont]);
+                Texto = Texto + txt;
+                cont++;
+            }
+            
+
+
+        }
+
+
 
             //Binario → Decimal
             int BinarioDecimal(long binario)
