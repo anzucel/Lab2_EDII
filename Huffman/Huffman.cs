@@ -11,6 +11,7 @@ namespace Huffman
         ListaDoble<NodoHuffman> Conteo { get; set; }
         string cadena_binario = "";
         string txtComprimido = "";
+        string txtDescomprimido = "";
         int cant_bytes = 0;
 
         //constructor, recibe texto que será compreso/descompreso
@@ -109,7 +110,7 @@ namespace Huffman
             return cadena;
         }
 
-        private string Codificar(string cadena_prefijos)
+        private string Codificar(string cadena_prefijos, string Tipo)
         {
             string aux = cadena_prefijos;
             string cadena = "";
@@ -124,17 +125,31 @@ namespace Huffman
                         cadena = aux.Remove(8);
                         aux = aux.Remove(0, 8);
                     }
+                    else
+                    {
+                        cadena = aux;
+                    }
                     int dec = BinarioDecimal(Convert.ToInt64(cadena));
                     codigo += Convert.ToChar(dec);
                 }
                 else
                 {
                     int agregar = Math.Abs(aux.Length - 8);
-                    for (int j = 0; j < agregar; j++)
+                    if (Tipo != "cadena")
                     {
-                        aux = 0 + aux;
+                        for (int j = 0; j < agregar; j++)
+                        {
+                            aux = 0 + aux; 
+                        }
                     }
-                    int dec = BinarioDecimal(Convert.ToInt64(aux));
+                    else
+                    {
+                        for (int j = 0; j < agregar; j++)
+                        {
+                            aux =aux + 0 ; 
+                        }
+                    }
+                   int dec = BinarioDecimal(Convert.ToInt64(aux));
                     codigo += Convert.ToChar(dec);
                 }
             }
@@ -219,32 +234,142 @@ namespace Huffman
             cadena_binario = UnirPrefijos();
 
             //Separa en bytes y convierte a ascii
-            txtComprimido = Codificar(cadena_binario);
+            txtComprimido = Codificar(cadena_binario, "cadena");
 
             //agregar al inicio del archivo las frecuencias de cada caracter
             cant_bytes = CantBytes();
 
             //cant_bytes + \n + caracter \n + frecuencia 
-            string info = DecimalBinario(cant_bytes) + "00001010";
+            string info = DecimalBinario(cant_bytes);/* + "00001010";*/
             info = info + CodInfo() + "00001010";
-            info = Codificar(info);
+            info = Codificar(info,"Leyenda");
             txtComprimido = info + txtComprimido;
-            
             return txtComprimido;
         }
 
 
-        //Parte de descomprimir
-        public string Descomprimir()
+        //Parte de descomprimir---------------------------------------------
+        public string Descomprimir(string texto)
         {
-            throw new NotImplementedException();
+            Texto = texto;
+            ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
+            Conteo = new ListaDoble<NodoHuffman>();
+            DescomprimirCaracteres();
+
+
+            Heap Heap = new Heap(Conteo.contador);
+
+            for (int i = 0; i < Conteo.contador; i++)
+            {
+                NodoHuffman nodo = new NodoHuffman();
+
+                nodo.valor = Conteo.ObtenerValor(i).valor;
+                nodo.caracter = Conteo.ObtenerValor(i).caracter;
+
+                Heap.Insertar(nodo);
+            }
+
+            NodoHuffman raiz = null;
+
+            while (Heap.contador > 1)
+            {
+                NodoHuffman nodo_izq = Heap.Extraer();
+                NodoHuffman nodo_der = Heap.Extraer();
+
+                NodoHuffman nodo_pivote = new NodoHuffman();
+
+                //la suma de la frecuencia de los dos nodos
+                nodo_pivote.valor = nodo_izq.valor + nodo_der.valor;
+                nodo_pivote.caracter = '^';
+
+                nodo_pivote.izquierda = nodo_izq;
+                nodo_pivote.derecha = nodo_der;
+
+                raiz = nodo_pivote;
+
+                Heap.Insertar(nodo_pivote);
+            }
+
+            // Genera los prefijos de cada caracter
+            GenerarPrefijos(raiz, "");
+            Decodificar();
+            return txtDescomprimido;
         }
 
-      
-
-            //Binario → Decimal
-        private int BinarioDecimal(long binario)
+        string Decodificar()
         {
+            int limite = 0;//define mi limite del texto
+            string textosub = "";
+            bool Encontrar = false;
+            for (int i = 0; i < Conteo.contador; i++)
+            {
+                limite = limite + Conteo.ObtenerValor(i).valor;
+            }
+
+            while (limite != 0)
+            {
+                textosub = textosub + Texto.Substring(0, 1);
+                Texto = Texto.Remove(0, 1);
+
+
+                for (int i = 0; i < Conteo.contador; i++)
+                {
+                    if (textosub == Conteo.ObtenerValor(i).prefijo)
+                    {
+                        txtDescomprimido = txtDescomprimido + Conteo.ObtenerValor(i).caracter;
+                        limite--;
+                        textosub = "";
+                        break;
+                    }
+                }
+
+            }
+
+
+            return txtDescomprimido;
+        }
+
+        private void DescomprimirCaracteres()
+        {
+
+            int Bits = Convert.ToInt32(ArrayTexto[0]);// Números de bits que se usaron 
+
+
+            int cont = 1; //Letras y sus frecuencias
+            while (Convert.ToString(ArrayTexto[cont]) != "\n")
+            {
+                int valor = 0; //frecuencia del caracter
+                NodoHuffman Caracter = new NodoHuffman();
+                Caracter.caracter = ArrayTexto[cont];
+                cont++;
+
+                for (int i = 0; i < Bits; i++) 
+                {
+                    valor = valor + ArrayTexto[cont];
+                    cont++;
+                }
+                Caracter.valor = valor;
+                Conteo.InsertarFinal(Caracter);
+            }
+            cont++;
+            Texto = "";
+            while (cont < ArrayTexto.Length)
+            {
+                string txt = DecimalBinario(ArrayTexto[cont]);
+                Texto = Texto + txt;
+                cont++;
+            }
+
+
+
+        }
+
+
+
+        //Binario → Decimal
+        int BinarioDecimal(long binario)
+        {
+
             int numero = 0;
             int digito = 0;
             const int DIVISOR = 10;
