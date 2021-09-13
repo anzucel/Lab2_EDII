@@ -8,16 +8,14 @@ namespace Huffman
         //texto original 
         string Texto { get; set; }
         char[] ArrayTexto { get; set; } //texto completo 
-
-        ListaDoble<char> Caracteres { get; set; } // caracteres que contiene el texto 
-        int[] Frecuencia { get; set; }  // cantidad de cada letra en el texto
+        ListaDoble<NodoHuffman> Conteo { get; set; }
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
         {
             Texto = texto_comprimir;
             ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
-            Caracteres = new ListaDoble<char>();   
+            Conteo = new ListaDoble<NodoHuffman>();
         }
 
         private void ExtraerCaracteres()
@@ -26,9 +24,9 @@ namespace Huffman
             for (int i = 0; i < ArrayTexto.Length; i++)
             {
                 insertar = true;
-                for (int j = 0; j < Caracteres.contador; j++)
+                for (int j = 0; j < Conteo.contador; j++)
                 {
-                    if (ArrayTexto[i] == Caracteres.ObtenerValor(j))
+                    if (ArrayTexto[i] == Conteo.ObtenerValor(j).caracter)
                     {
                         insertar = false;
                         break;
@@ -37,27 +35,29 @@ namespace Huffman
 
                 if (insertar)
                 {
-                    Caracteres.InsertarFinal(ArrayTexto[i]);
+                    NodoHuffman nodo = new NodoHuffman();
+                    nodo.caracter = ArrayTexto[i];
+                    Conteo.InsertarFinal(nodo);
                 }
             }
         }
 
         private void ContarCaracteres()
         {
-            Frecuencia = new int[Caracteres.contador];
-
-            for (int i = 0; i < Frecuencia.Length; i++)
-            {
-                Frecuencia[i] = 0;
-            }
-
-            for (int i = 0; i < Caracteres.contador; i++)
+            for (int i = 0; i < Conteo.contador; i++)
             {
                 for (int j = 0; j < ArrayTexto.Length; j++)
                 {
-                    if (Caracteres.ObtenerValor(i) == ArrayTexto[j])
+                    if (Conteo.ObtenerValor(i).caracter == ArrayTexto[j])
                     {
-                        Frecuencia[i]++;
+                        NodoHuffman nuevo = new NodoHuffman();
+                        NodoHuffman nodo = Conteo.ExtraerEnPosicion(i).Valor;
+
+                        nuevo.caracter = nodo.caracter;
+                        nuevo.valor = nodo.valor;
+                        nuevo.valor++;
+
+                        Conteo.InsertarEnPosicion(nuevo, i);
                     }
                 }
             }
@@ -65,19 +65,16 @@ namespace Huffman
 
         private void BubbleSort()
         {
-            for (int i = 0; i < Frecuencia.Length - 1; i++)
+            for (int i = 0; i < Conteo.contador - 1; i++)
             {
-                for (int j = i + 1; j < Frecuencia.Length; j++)
+                for (int j = i + 1; j < Conteo.contador; j++)
                 {
-                    if (Frecuencia[i] > Frecuencia[j])
+                    if (Conteo.ObtenerValor(i).valor > Conteo.ObtenerValor(j).valor)
                     {
-                        int temp = Frecuencia[i];
-                        Frecuencia[i] = Frecuencia[j];
-                        Frecuencia[j] = temp;
+                        NodoHuffman temp = Conteo.ExtraerEnPosicion(i).Valor;
+                        Conteo.InsertarEnPosicion(Conteo.ExtraerEnPosicion(j - 1).Valor, i);
+                        Conteo.InsertarEnPosicion(temp, j);
 
-                        char temp2 = Caracteres.ExtraerEnPosicion(i).Valor;
-                        Caracteres.InsertarEnPosicion(Caracteres.ExtraerEnPosicion(j - 1).Valor, i);
-                        Caracteres.InsertarEnPosicion(temp2, j);
                     }
                 }
             }
@@ -89,28 +86,29 @@ namespace Huffman
             //se buscan los diferentes caracteres que contiene el texto 
             ExtraerCaracteres();
             ContarCaracteres();
-            BubbleSort();
+            
+            Heap Heap = new Heap(Conteo.contador);
 
-            Arbol Heap = new Arbol();
-
-            for (int i = 0; i < Caracteres.contador; i++)
+            for (int i = 0; i < Conteo.contador; i++)
             {
                 NodoHuffman nodo = new NodoHuffman();
 
-                nodo.valor = Frecuencia[i];
-                nodo.caracter = Caracteres.ObtenerValor(i);
-
-                //nodo.derecha = null;
-                //nodo.izquierda = null;
+                nodo.valor = Conteo.ObtenerValor(i).valor;
+                nodo.caracter = Conteo.ObtenerValor(i).caracter;
 
                 Heap.Insertar(nodo);
             }
+
+            NodoHuffman raiz = null;
+
+
+
 
             ListaDoble<char> prueba = new ListaDoble<char>();
 
             while (Heap != null)
             {
-                char nuevo = Heap.Eliminar().caracter;
+                char nuevo = Heap.Extraer().caracter;
             }
 
             throw new NotImplementedException();
