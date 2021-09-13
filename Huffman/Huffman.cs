@@ -9,6 +9,8 @@ namespace Huffman
         string Texto { get; set; }
         char[] ArrayTexto { get; set; } //texto completo 
         ListaDoble<NodoHuffman> Conteo { get; set; }
+        string cadena_binario = "";
+        string txtComprimido = "";
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
@@ -89,6 +91,53 @@ namespace Huffman
             }
         }
 
+        private string UnirPrefijos()
+        {
+            string cadena = "";
+            for (int i = 0; i < ArrayTexto.Length; i++)
+            {
+                for (int j = 0; j < Conteo.contador; j++)
+                {
+                    if (ArrayTexto[i] == Conteo.ObtenerValor(j).caracter)
+                    {
+                        cadena += Conteo.ObtenerValor(j).prefijo;
+                        break;
+                    }
+                }
+            }
+            return cadena;
+        }
+
+        private string Codificar(string cadena_prefijos)
+        {
+            string aux = cadena_prefijos;
+            string cadena = "";
+            string codigo = "";
+
+            for (int i = 0; i < cadena_prefijos.Length; i +=8)
+            {
+                if (aux.Length/8 > 0)
+                {
+                    cadena = aux.Remove(8);
+                    aux = aux.Remove(0, 8);
+                    int dec = BinarioDecimal(Convert.ToInt64(cadena));
+                    codigo += Convert.ToChar(dec);
+                }
+                else
+                {
+                    int agregar = Math.Abs(aux.Length - 8);
+                    for (int j = 0; j < agregar; j++)
+                    {
+                        aux += 0;
+                    }
+                    int dec = BinarioDecimal(Convert.ToInt64(aux));
+                    codigo += Convert.ToChar(dec);
+                }
+            }
+            return codigo;
+        }
+
+
         //Métodos de la interfaz
         public string Comprimir()
         {
@@ -129,18 +178,18 @@ namespace Huffman
                 Heap.Insertar(nodo_pivote);
             }
 
+            // Genera los prefijos de cada caracter
             GenerarPrefijos(raiz, "");
 
+            //Genera cadena con código binario 
+            cadena_binario = UnirPrefijos();
 
+            //Separa en bytes y convierte a ascii
+            txtComprimido = Codificar(cadena_binario);
 
-            ListaDoble<char> prueba = new ListaDoble<char>();
+            //agregar al inicio del archivo las frecuencias de cada caracter
 
-            while (Heap != null)
-            {
-                char nuevo = Heap.Extraer().caracter;
-            }
-
-            throw new NotImplementedException();
+            return txtComprimido;
         }
 
 
@@ -153,9 +202,8 @@ namespace Huffman
       
 
             //Binario → Decimal
-            int BinarioDecimal(long binario)
+        private int BinarioDecimal(long binario)
         {
-
             int numero = 0;
             int digito = 0;
             const int DIVISOR = 10;
