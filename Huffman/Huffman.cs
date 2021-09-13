@@ -116,9 +116,63 @@ namespace Huffman
             throw new NotImplementedException();
         }
 
+
+        //Parte de descomprimir
         public string Descomprimir()
         {
             throw new NotImplementedException();
+        }
+
+      
+
+            //Binario → Decimal
+            int BinarioDecimal(long binario)
+        {
+
+            int numero = 0;
+            int digito = 0;
+            const int DIVISOR = 10;
+
+            for (long i = binario, j = 0; i > 0; i /= DIVISOR, j++)
+            {
+                digito = (int)i % DIVISOR;
+                if (digito != 1 && digito != 0)
+                {
+                    return -1;
+                }
+                numero += digito * (int)Math.Pow(2, j);
+            }
+
+            return numero;
+        }
+
+
+        //Decimal → Binario
+        string DecimalBinario(int numero)
+        {
+
+            long binario = 0;
+
+            const int DIVISOR = 2;
+            long digito = 0;
+
+            for (int i = numero % DIVISOR, j = 0; numero > 0; numero /= DIVISOR, i = numero % DIVISOR, j++)
+            {
+                digito = i % DIVISOR;
+                binario += digito * (long)Math.Pow(10, j);
+            }
+            string Binario = binario.ToString();
+
+            if (Binario.Length < 8) //autorelleno de los 8 bits
+            {
+                int ceros = 8 - Binario.Length;
+                for (int i = 0; i < ceros; i++)
+                {
+                    Binario = "0" + Binario;
+                }
+            }
+            binario = Convert.ToInt64(Binario);
+            return Binario;
         }
     }
 }
