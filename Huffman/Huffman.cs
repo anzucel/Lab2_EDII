@@ -63,20 +63,29 @@ namespace Huffman
             }
         }
 
-        private void BubbleSort()
+        public void GenerarPrefijos(NodoHuffman raiz, string codigo)
         {
-            for (int i = 0; i < Conteo.contador - 1; i++)
+            if (raiz.izquierda == null && raiz.derecha == null && raiz.caracter != '^')
             {
-                for (int j = i + 1; j < Conteo.contador; j++)
+                for (int i = 0; i < Conteo.contador; i++)
                 {
-                    if (Conteo.ObtenerValor(i).valor > Conteo.ObtenerValor(j).valor)
+                    if (Conteo.ObtenerValor(i).caracter == raiz.caracter)
                     {
-                        NodoHuffman temp = Conteo.ExtraerEnPosicion(i).Valor;
-                        Conteo.InsertarEnPosicion(Conteo.ExtraerEnPosicion(j - 1).Valor, i);
-                        Conteo.InsertarEnPosicion(temp, j);
-
+                        NodoHuffman aux = Conteo.ExtraerEnPosicion(i).Valor;
+                        NodoHuffman nuevo = new NodoHuffman();
+                        nuevo.caracter = aux.caracter;
+                        nuevo.valor = aux.valor;
+                        nuevo.prefijo = codigo;
+                        Conteo.InsertarEnPosicion(nuevo, i);
+                        break;
                     }
                 }
+            }
+
+            if(raiz.izquierda != null && raiz.derecha != null)
+            {
+                GenerarPrefijos(raiz.izquierda, codigo + "0");
+                GenerarPrefijos(raiz.derecha, codigo + "1");
             }
         }
 
@@ -101,6 +110,26 @@ namespace Huffman
 
             NodoHuffman raiz = null;
 
+            while (Heap.contador > 1)
+            {
+                NodoHuffman nodo_izq = Heap.Extraer();
+                NodoHuffman nodo_der = Heap.Extraer();
+
+                NodoHuffman nodo_pivote = new NodoHuffman();
+
+                //la suma de la frecuencia de los dos nodos
+                nodo_pivote.valor = nodo_izq.valor + nodo_der.valor;
+                nodo_pivote.caracter = '^';
+
+                nodo_pivote.izquierda = nodo_izq;
+                nodo_pivote.derecha = nodo_der;
+
+                raiz = nodo_pivote;
+
+                Heap.Insertar(nodo_pivote);
+            }
+
+            GenerarPrefijos(raiz, "");
 
 
 
