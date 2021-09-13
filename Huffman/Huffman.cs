@@ -11,6 +11,7 @@ namespace Huffman
         ListaDoble<NodoHuffman> Conteo { get; set; }
         string cadena_binario = "";
         string txtComprimido = "";
+        int cant_bytes = 0;
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
@@ -118,8 +119,11 @@ namespace Huffman
             {
                 if (aux.Length/8 > 0)
                 {
-                    cadena = aux.Remove(8);
-                    aux = aux.Remove(0, 8);
+                    if (aux.Length > 8)
+                    {
+                        cadena = aux.Remove(8);
+                        aux = aux.Remove(0, 8);
+                    }
                     int dec = BinarioDecimal(Convert.ToInt64(cadena));
                     codigo += Convert.ToChar(dec);
                 }
@@ -128,7 +132,7 @@ namespace Huffman
                     int agregar = Math.Abs(aux.Length - 8);
                     for (int j = 0; j < agregar; j++)
                     {
-                        aux += 0;
+                        aux = 0 + aux;
                     }
                     int dec = BinarioDecimal(Convert.ToInt64(aux));
                     codigo += Convert.ToChar(dec);
@@ -137,6 +141,36 @@ namespace Huffman
             return codigo;
         }
 
+        private int CantBytes()
+        {
+            int bits = 8;
+            int bytes = 1;
+            for (int i = 0; i < Conteo.contador; i++)
+            {
+                if (Conteo.ObtenerValor(i).valor > Math.Pow(2, bits))
+                {
+                    bits += 8;
+                    bytes++;
+                }
+            }
+            return bytes;
+        }
+
+        private string CodInfo()
+        {
+            string codigo = "";
+            for (int i = 0; i < Conteo.contador; i++)
+            {
+                //caracter 
+                char aux = Conteo.ObtenerValor(i).caracter; //M = 77
+                string caracter = DecimalBinario(Convert.ToInt32(aux)); // 1001101
+                //frecuencia 
+                string frecuencia = DecimalBinario(Conteo.ObtenerValor(i).valor); // 10000000
+
+                codigo += caracter + frecuencia;
+            }
+            return codigo;
+        }
 
         //Métodos de la interfaz
         public string Comprimir()
@@ -188,7 +222,14 @@ namespace Huffman
             txtComprimido = Codificar(cadena_binario);
 
             //agregar al inicio del archivo las frecuencias de cada caracter
+            cant_bytes = CantBytes();
 
+            //cant_bytes + \n + caracter \n + frecuencia 
+            string info = DecimalBinario(cant_bytes) + "00001010";
+            info = info + CodInfo() + "00001010";
+            info = Codificar(info);
+            txtComprimido = info + txtComprimido;
+            
             return txtComprimido;
         }
 
