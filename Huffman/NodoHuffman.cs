@@ -8,19 +8,20 @@ namespace Huffman
     {
         public int valor { get; set; }
         public char caracter { get; set; }
+        public string prefijo { get; set; }
         //public int altura { get; set; }
 
         //Posiciones del árbol binario
-        //public NodoHuffman derecha { get; set; }
-        //public NodoHuffman izquierda { get; set; }
+        public NodoHuffman derecha { get; set; }
+        public NodoHuffman izquierda { get; set; }
 
 
         // constructor de la clase Nodo
         public NodoHuffman()
         {
            // altura = 0;
-            //derecha = null;
-            //izquierda = null;
+            derecha = null;
+            izquierda = null;
         }
 
         // public Nodo<T> raiz; 

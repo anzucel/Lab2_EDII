@@ -84,18 +84,6 @@ namespace Huffman
             return true;
         }
 
-        /*decrease key
-        private void Ordenar(int posicion, NodoHuffman nuevo)
-        {
-            ArregloHeap[posicion] = nuevo;
-
-            while (posicion != 0 && ArregloHeap[posicion].valor < ArregloHeap[ObtenerPadre(posicion)].valor)
-            {
-                Swap(ref ArregloHeap[posicion], ref ArregloHeap[ObtenerPadre(posicion)]);
-                posicion = ObtenerPadre(posicion);
-            }
-        }*/
-
         public NodoHuffman Obtener()
         {
             return ArregloHeap[0];
@@ -139,28 +127,6 @@ namespace Huffman
                 ArregloHeap[izq] = aux;
                 OrdenarMin(izq);
             }
-            /*int menor = posicion;
-            if (izq < contador && ArregloHeap[izq].valor < ArregloHeap[menor].valor)
-            {
-                menor = 1;
-            }
-            if (der < contador && ArregloHeap[der].valor < ArregloHeap[menor].valor)
-            {
-                menor = der;
-            }
-
-            if (menor != posicion)
-            {
-                Swap(ref ArregloHeap[posicion], ref ArregloHeap[menor]);
-                OrdenarMin(menor);
-            }*/
         }
-
-        /*
-        private void OrdenarMax(int posicion, NodoHuffman nuevo)
-        {
-            ArregloHeap[posicion] = nuevo;
-            OrdenarMin(posicion);
-        }*/
     }
 }
