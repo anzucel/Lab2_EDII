@@ -7,7 +7,7 @@ namespace Huffman
     {
         //texto original 
         string Texto { get; set; }
-        char[] ArrayTexto { get; set; } //texto completo 
+        char[] ArrayTexto { get; set; } //texto completo
         ListaDoble<NodoHuffman> Conteo { get; set; }
         string cadena_binario = "";
         string txtComprimido = "";
@@ -224,10 +224,11 @@ namespace Huffman
             //agregar al inicio del archivo las frecuencias de cada caracter
             cant_bytes = CantBytes();
 
-            //cant_bytes + \n + caracter \n + frecuencia 
+            //cant_bytes + \n + caracter + frecuencia + \n + texto
             string info = DecimalBinario(cant_bytes) + "00001010";
             info = info + CodInfo() + "00001010";
             info = Codificar(info);
+
             txtComprimido = info + txtComprimido;
             
             return txtComprimido;
