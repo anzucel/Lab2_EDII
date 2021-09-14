@@ -17,12 +17,12 @@ namespace ProyectoAPI.Controllers
     [ApiController]
     [Route("api/[controller]")]
     public class huffman : ControllerBase
-    {
+    {        
         // GET: api/<Huffman> 
         [HttpGet]
         public IEnumerable<string> Get()
         {
-           
+
             return new string[] { "value1" };
         }
 
@@ -68,8 +68,8 @@ namespace ProyectoAPI.Controllers
             {
                 File.CopyToAsync(archivo);
                 var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
-                var Compresion= Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
-                
+                var Compresion= Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion); 
+
                 //Crear el nuevo archivo .huff
                 //agregar a la lista para crear el json
                 return Ok();
