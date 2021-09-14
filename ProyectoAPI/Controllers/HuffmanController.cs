@@ -9,17 +9,20 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ProyectoAPI.Models;
 using Microsoft.Extensions.Logging;
+using Huffman;
+
 
 namespace ProyectoAPI.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class Huffman : ControllerBase
+    public class huffman : ControllerBase
     {
         // GET: api/<Huffman> 
         [HttpGet]
         public IEnumerable<string> Get()
         {
+           
             return new string[] { "value1" };
         }
 
@@ -44,10 +47,8 @@ namespace ProyectoAPI.Controllers
             {
                 File.CopyToAsync(archivo);
                 var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
-                //foreach (var nuevo in listaPeliculas)
-                //{
-                //    Singleton.Instance.ABPeliculas.Insertar(nuevo);
-                //}
+                var Descompresion = Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
+
                 return Ok();
             }
             catch (Exception)
@@ -66,11 +67,11 @@ namespace ProyectoAPI.Controllers
             try
             {
                 File.CopyToAsync(archivo);
-                var coleccion = Encoding.ASCII.GetString(archivo.ToArray());              
-                //foreach (var nuevo in listaPeliculas)
-                //{
-                //    Singleton.Instance.ABPeliculas.Insertar(nuevo);
-                //}
+                var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
+                var Compresion= Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
+                
+                //Crear el nuevo archivo .huff
+                //agregar a la lista para crear el json
                 return Ok();
             }
             catch (Exception)

@@ -12,15 +12,15 @@
     "IIS Express": {
       "commandName": "IISExpress",
       "launchBrowser": true,
-      "launchUrl": "api/Huffman",
+      "launchUrl": "api/huffman",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
     "ProyectoAPI": {
-      "commandName": "api/Huffman",
+      "commandName": "api/huffman",
       "launchBrowser": true,
-      "launchUrl": "api/Huffman",
+      "launchUrl": "api/huffman",
       "applicationUrl": "https://localhost:5001;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"

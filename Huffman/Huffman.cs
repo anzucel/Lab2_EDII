@@ -1,6 +1,7 @@
 ﻿using System;
 using ListaDobleEnlace;
 
+
 namespace Huffman
 {
     public class Huffman : IHuffman
