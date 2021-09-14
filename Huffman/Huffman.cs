@@ -334,23 +334,33 @@ namespace Huffman
         {
 
             int Bits = Convert.ToInt32(ArrayTexto[0]);// Números de bits que se usaron 
+            bool salir = false;
 
 
             int cont = 1; //Letras y sus frecuencias
-            while (Convert.ToString(ArrayTexto[cont]) != "\n")
+            while (salir==false)
             {
-                int valor = 0; //frecuencia del caracter
-                NodoHuffman Caracter = new NodoHuffman();
-                Caracter.caracter = ArrayTexto[cont];
-                cont++;
-
-                for (int i = 0; i < Bits; i++) 
+                if (Convert.ToString(ArrayTexto[cont]) == "\n" && Convert.ToString(ArrayTexto[cont - 2]) != "\r")
                 {
-                    valor = valor + ArrayTexto[cont];
-                    cont++;
+
+
+                    salir = true;
                 }
-                Caracter.valor = valor;
-                Conteo.InsertarFinal(Caracter);
+                else
+                {
+                    int valor = 0; //frecuencia del caracter
+                    NodoHuffman Caracter = new NodoHuffman();
+                    Caracter.caracter = ArrayTexto[cont];
+                    cont++;
+
+                    for (int i = 0; i < Bits; i++)
+                    {
+                        valor = valor + ArrayTexto[cont];
+                        cont++;
+                    }
+                    Caracter.valor = valor;
+                    Conteo.InsertarFinal(Caracter);
+                }
             }
             cont++;
             Texto = "";
