@@ -11,9 +11,15 @@ namespace PruebaConsola
             string msj_comprimido;
             string msj_descomprimido;
 
-            IHuffman huffman = new Huffman.Huffman(cadena_texto);
-            msj_comprimido = huffman.Comprimir();//huffman
-            msj_descomprimido = huffman.Descomprimir();//huffman
+            IHuffman huffman;
+            huffman= new Huffman.Huffman(cadena_texto);
+           // msj_comprimido = huffman.Comprimir();//huffman
+            //cadena_texto = "";
+
+
+            cadena_texto = huffman.Comprimir(); //Toma el texto comprimido y lo vuelve a reasignar a las variables ya definidas para descomprimir
+          
+            msj_descomprimido = huffman.Descomprimir(cadena_texto);//huffman
         }
     }
 }
