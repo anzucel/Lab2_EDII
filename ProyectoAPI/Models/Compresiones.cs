@@ -9,7 +9,9 @@ namespace ProyectoAPI.Models
     public class Compresiones
     {
         public string Nombre { get; set; }//Nombre original
-        public string Ruta_Nombre { get; set; }//Ruta del archivo comprimido y nombre
+        public string NombreCompresion { get; set; }
+        public string Ruta { get; set; }//Ruta del archivo comprimido y nombre
+
         public double Razon_Compresion { get; set; }
         public double Factor_Compresion { get; set; }
         public string Porcentaje_reduccion { get; set; }

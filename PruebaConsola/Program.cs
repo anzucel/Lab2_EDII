@@ -7,7 +7,7 @@ namespace PruebaConsola
     {
         static void Main(string[] args)
         {
-            string cadena_texto = "MISSISSIPPI RIVER";
+            string cadena_texto = "MISSISSIPPI";
             string msj_comprimido;
             string msj_descomprimido;
 

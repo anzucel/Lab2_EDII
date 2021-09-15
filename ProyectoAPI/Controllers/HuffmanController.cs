@@ -10,8 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using ProyectoAPI.Models;
 using Microsoft.Extensions.Logging;
 using Huffman;
-using Microsoft.Win32;
-using static System.Net.Mime.MediaTypeNames;
+
 
 namespace ProyectoAPI.Controllers
 {
@@ -26,16 +25,16 @@ namespace ProyectoAPI.Controllers
         public IEnumerable<string> Get()
         {
            
-            return new string[] { "value1" };
+            return new string[] { "Laboratorio 2, Huffman-Jason Girón/Andrea Hernández" };
         }
 
 
 
         [HttpGet]
         [Route("compressions")]
-        public IEnumerable<string> Getcompressions()
+        public IEnumerable<Compresiones> Getcompressions()
         {
-            return new string[] { };
+            return Singleton.Instance.Historial;
         }
 
 
@@ -55,8 +54,10 @@ namespace ProyectoAPI.Controllers
                 texto = Encoding.UTF8.GetString(texto_bytes);
                 // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
-                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto); 
-                escribirtxt(Descompresion,"Descompreso");
+                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto);
+                //buscar el nombre original
+                Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
+                escribir(Descompresion, nombrecompres.Nombre);
                 return Ok();
             }
             catch (Exception)
@@ -81,7 +82,24 @@ namespace ProyectoAPI.Controllers
                 string Compresion = Singleton.Instance.huffman_CD.Comprimir();              
                 escribir(Compresion, name);
                 //Crear el nuevo archivo .huff
-                //agregar a la lista para crear el json
+
+                //agregar a la lista para crear el json--------------->
+                double BArchivoOriginal = 0, BArchivo = 0;//Variables para calcular el factor y razpn de compresión               
+                BArchivoOriginal = coleccion.Length;
+                BArchivo = Compresion.Length;
+
+                Compresiones nuevo = new Compresiones()
+                {
+                    Nombre = File.FileName,
+                    Ruta = Singleton.Instance.DireccionNombre,
+                    NombreCompresion = name + ".txt",
+                    Factor_Compresion = FactorCompresion(BArchivoOriginal, BArchivo),
+                    Razon_Compresion = RazonCompresion(BArchivo, BArchivoOriginal),
+                };
+                double porcentaje = nuevo.Razon_Compresion * 100;
+                nuevo.Porcentaje_reduccion = Convert.ToString(porcentaje + "%");
+
+                Singleton.Instance.Historial.Add(nuevo);
                 return Ok();
             }
             catch (Exception)
@@ -95,8 +113,10 @@ namespace ProyectoAPI.Controllers
         ///Metodos guardar
         void escribir(string imprimir, string name)
         {
+            Singleton.Instance.DireccionNombre = "";
+            Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
 
-            name ="../Archivos/"+name + ".huff";//Ruta en donde se guardará con el nombre enviado en el post
+          
 
             Encoding utf8 = Encoding.UTF8;
             //pasar de string a bytes 
@@ -107,9 +127,8 @@ namespace ProyectoAPI.Controllers
             try
             {
                 //Open the File
-                StreamWriter sw = new StreamWriter(name, true, Encoding.UTF8);
+                StreamWriter sw = new StreamWriter(Singleton.Instance.DireccionNombre, true, Encoding.UTF8);
 
-                //Write out the numbers 1 to 10 on the same line.
                 sw.Write(x);
 
                 //close the file
@@ -123,37 +142,21 @@ namespace ProyectoAPI.Controllers
             {
                 Console.WriteLine("Executing finally block.");
             }
+
         }
 
-        void escribirtxt(string imprimir, string name)
+        double RazonCompresion(double BArchivo, double BArchivoOriginal)
         {
-            name = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
-
-            Encoding utf8 = Encoding.UTF8;
-            //pasar de string a bytes 
-            Byte[] texto_bytes = utf8.GetBytes(imprimir);
-
-            //pasar de bytes a string
-            string x = Encoding.UTF8.GetString(texto_bytes);
-            try
-            {
-                //Open the File
-                StreamWriter sw = new StreamWriter(name, true, Encoding.UTF8);
-
-                //Write out the numbers 1 to 10 on the same line.
-                sw.Write(x);
-
-                //close the file
-                sw.Close();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Exception: " + e.Message);
-            }
-            finally
-            {
-                Console.WriteLine("Executing finally block.");
-            }
+            double result = Math.Round((BArchivo / BArchivoOriginal), 2, MidpointRounding.ToEven);
+            return result;
         }
+
+        double FactorCompresion(double BArchivoOriginal, double BArchivo)
+        {
+            double result = Math.Round((BArchivoOriginal / BArchivo), 2, MidpointRounding.ToEven);
+            return result;
+        }
+
+
     }
 }

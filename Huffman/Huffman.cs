@@ -334,11 +334,11 @@ namespace Huffman
         private void DescomprimirCaracteres()
         {
 
-            int Bits = Convert.ToInt32(ArrayTexto[0]);// Números de bits que se usaron 
+            int Bits = Convert.ToInt32(ArrayTexto[1]);// Números de bits que se usaron 
             bool salir = false;
 
 
-            int cont = 1; //Letras y sus frecuencias
+            int cont = 2; //Letras y sus frecuencias
             while (salir==false)
             {
                 if (Convert.ToString(ArrayTexto[cont]) == "\n" && Convert.ToString(ArrayTexto[cont - 2]) != "\r")
