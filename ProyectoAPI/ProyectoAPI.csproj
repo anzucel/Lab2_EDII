@@ -5,6 +5,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grpc.Core" Version="2.40.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Huffman\Huffman.csproj" />
   </ItemGroup>
 
