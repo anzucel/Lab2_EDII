@@ -10,7 +10,8 @@ using Microsoft.AspNetCore.Mvc;
 using ProyectoAPI.Models;
 using Microsoft.Extensions.Logging;
 using Huffman;
-
+using Microsoft.Win32;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ProyectoAPI.Controllers
 {
@@ -55,7 +56,7 @@ namespace ProyectoAPI.Controllers
                 // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
                 string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto); 
-                escribir(Descompresion,"Descompreso");
+                escribirtxt(Descompresion,"Descompreso");
                 return Ok();
             }
             catch (Exception)
@@ -95,7 +96,7 @@ namespace ProyectoAPI.Controllers
         void escribir(string imprimir, string name)
         {
 
-            name ="../Archivos/"+name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
+            name ="../Archivos/"+name + ".huff";//Ruta en donde se guardará con el nombre enviado en el post
 
             Encoding utf8 = Encoding.UTF8;
             //pasar de string a bytes 
@@ -122,8 +123,37 @@ namespace ProyectoAPI.Controllers
             {
                 Console.WriteLine("Executing finally block.");
             }
-
         }
 
+        void escribirtxt(string imprimir, string name)
+        {
+            name = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
+
+            Encoding utf8 = Encoding.UTF8;
+            //pasar de string a bytes 
+            Byte[] texto_bytes = utf8.GetBytes(imprimir);
+
+            //pasar de bytes a string
+            string x = Encoding.UTF8.GetString(texto_bytes);
+            try
+            {
+                //Open the File
+                StreamWriter sw = new StreamWriter(name, true, Encoding.UTF8);
+
+                //Write out the numbers 1 to 10 on the same line.
+                sw.Write(x);
+
+                //close the file
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Executing finally block.");
+            }
+        }
     }
 }
