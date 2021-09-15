@@ -22,7 +22,6 @@ namespace ProyectoAPI.Controllers
         [HttpGet]
         public IEnumerable<string> Get()
         {
-           
             return new string[] { "value1" };
         }
 
@@ -30,9 +29,11 @@ namespace ProyectoAPI.Controllers
 
         [HttpGet]
         [Route("compressions")]
-        public IEnumerable<string> Getcompressions()
+        public IEnumerable<Compresiones> Getcompressions()
         {
-            return new string[] { };
+          
+            return Singleton.Instance.Historial;
+           // return new string[] { };
         }
 
 
@@ -45,12 +46,16 @@ namespace ProyectoAPI.Controllers
             using var archivo = new MemoryStream();
             try
             {
+                
                 File.CopyToAsync(archivo);
                 var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
 
-               // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
+                Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
                 var Descompresion = Singleton.Instance.huffman_CD.Descomprimir(coleccion);
-                escribir(Descompresion,"Descompreso");
+
+                //buscar el nombre original
+                Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
+                escribir(Descompresion, nombrecompres.Nombre);
                 return Ok();
             }
             catch (Exception)
@@ -68,20 +73,39 @@ namespace ProyectoAPI.Controllers
             using var archivo = new MemoryStream();
             try
             {
+                double BArchivoOriginal=0, BArchivo=0;//Variables para calcular el factor y razpn de compresión
+
                 File.CopyToAsync(archivo);
-                var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
-                 Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
-                var Compresion = Singleton.Instance.huffman_CD.Comprimir();              
+                var coleccion = Encoding.ASCII.GetString (archivo.ToArray());             
+                Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
+                var Compresion = Singleton.Instance.huffman_CD.Comprimir();
                 escribir(Compresion, name);
-                //Crear el nuevo archivo .huff
-                //agregar a la lista para crear el json
+
+                //Se generan el factor y razon
+                BArchivoOriginal = coleccion.Length;
+                BArchivo = Compresion.Length;
+
+
+
+                Compresiones nuevo = new Compresiones()
+                {
+                    Nombre = File.FileName,
+                    Ruta = Singleton.Instance.DireccionNombre,
+                    NombreCompresion = name+".txt",
+                    Factor_Compresion = FactorCompresion(BArchivoOriginal, BArchivo),
+                    Razon_Compresion = RazonCompresion(BArchivo, BArchivoOriginal),
+                };
+                double porcentaje= nuevo.Factor_Compresion * 100;
+                nuevo.Porcentaje_reduccion = Convert.ToString(porcentaje + "%");
+
+                Singleton.Instance.Historial.Add(nuevo);
                 return Ok();
             }
             catch (Exception)
             {
                 return StatusCode(500);
             }
-           
+
         }
 
 
@@ -89,21 +113,16 @@ namespace ProyectoAPI.Controllers
         void escribir(string imprimir, string name)
         {
 
-            name ="../Archivos/"+name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
+            Singleton.Instance.DireccionNombre = "";
+            Singleton.Instance.DireccionNombre  = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
 
 
-            string x =imprimir;
+            string x = imprimir;
             try
             {
-                //Open the File
-                StreamWriter sw = new StreamWriter(name, true, Encoding.ASCII);
-
-                //Write out the numbers 1 to 10 on the same line.
+                StreamWriter sw = new StreamWriter(Singleton.Instance.DireccionNombre , true, Encoding.ASCII);
 
                 sw.Write(x);
-
-
-                //close the file
                 sw.Close();
             }
             catch (Exception e)
@@ -115,6 +134,18 @@ namespace ProyectoAPI.Controllers
                 Console.WriteLine("Executing finally block.");
             }
 
+        }
+
+        double RazonCompresion(double BArchivo, double BArchivoOriginal)
+        {
+            double result = Math.Round((BArchivo / BArchivoOriginal), 2, MidpointRounding.ToEven);
+            return result;
+        }
+
+        double FactorCompresion(double BArchivoOriginal, double BArchivo)
+        {
+            double result = Math.Round((BArchivoOriginal / BArchivo),2,MidpointRounding.ToEven);
+            return result;
         }
 
     }
