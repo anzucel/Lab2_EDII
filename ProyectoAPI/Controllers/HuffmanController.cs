@@ -18,6 +18,8 @@ namespace ProyectoAPI.Controllers
     [Route("api/[controller]")]
     public class huffman : ControllerBase
     {
+        Encoding utf8 = Encoding.UTF8;
+
         // GET: api/<Huffman> 
         [HttpGet]
         public IEnumerable<string> Get()
@@ -46,10 +48,13 @@ namespace ProyectoAPI.Controllers
             try
             {
                 File.CopyToAsync(archivo);
-                var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
-
-               // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
-                var Descompresion = Singleton.Instance.huffman_CD.Descomprimir(coleccion);
+                var coleccion = Encoding.UTF8.GetString(archivo.ToArray());  //pasa el texto a cadena
+                Byte[] texto_bytes = utf8.GetBytes(coleccion); // texto a bytes
+                string texto = "";
+                texto = Encoding.UTF8.GetString(texto_bytes);
+                // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
+                Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
+                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto); 
                 escribir(Descompresion,"Descompreso");
                 return Ok();
             }
@@ -59,8 +64,6 @@ namespace ProyectoAPI.Controllers
             }
         }
 
-
-
         [HttpPost]
         [Route("compress/{name}")]
         public IActionResult PostFileCompress([FromForm] IFormFile File, [FromRoute] string name)
@@ -69,9 +72,12 @@ namespace ProyectoAPI.Controllers
             try
             {
                 File.CopyToAsync(archivo);
-                var coleccion = Encoding.ASCII.GetString(archivo.ToArray());
-                 Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
-                var Compresion = Singleton.Instance.huffman_CD.Comprimir();              
+                var coleccion = Encoding.UTF8.GetString(archivo.ToArray()); //pasa el texto a cadena 
+                Byte[] texto_bytes = utf8.GetBytes(coleccion); // texto a bytes 
+                string texto = "";
+                texto = Encoding.UTF8.GetString(texto_bytes);
+                Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
+                string Compresion = Singleton.Instance.huffman_CD.Comprimir();              
                 escribir(Compresion, name);
                 //Crear el nuevo archivo .huff
                 //agregar a la lista para crear el json
@@ -91,17 +97,19 @@ namespace ProyectoAPI.Controllers
 
             name ="../Archivos/"+name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
 
+            Encoding utf8 = Encoding.UTF8;
+            //pasar de string a bytes 
+            Byte[] texto_bytes = utf8.GetBytes(imprimir);
 
-            string x =imprimir;
+            //pasar de bytes a string
+            string x = Encoding.UTF8.GetString(texto_bytes);
             try
             {
                 //Open the File
-                StreamWriter sw = new StreamWriter(name, true, Encoding.ASCII);
+                StreamWriter sw = new StreamWriter(name, true, Encoding.UTF8);
 
                 //Write out the numbers 1 to 10 on the same line.
-
                 sw.Write(x);
-
 
                 //close the file
                 sw.Close();

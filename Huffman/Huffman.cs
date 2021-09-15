@@ -1,6 +1,6 @@
 ﻿using System;
 using ListaDobleEnlace;
-
+using System.Text;
 
 namespace Huffman
 {
@@ -14,6 +14,7 @@ namespace Huffman
         string txtComprimido = "";
         string txtDescomprimido = "";
         int cant_bytes = 0;
+        Encoding ascii = Encoding.ASCII;
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
