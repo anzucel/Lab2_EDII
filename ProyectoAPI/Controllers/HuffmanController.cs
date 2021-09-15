@@ -57,7 +57,7 @@ namespace ProyectoAPI.Controllers
                 string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto);
                 //buscar el nombre original
                 Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
-                escribir(Descompresion, nombrecompres.Nombre);
+                escribirtxt(Descompresion, nombrecompres.Nombre);
                 return Ok();
             }
             catch (Exception)
@@ -92,7 +92,7 @@ namespace ProyectoAPI.Controllers
                 {
                     Nombre = File.FileName,
                     Ruta = Singleton.Instance.DireccionNombre,
-                    NombreCompresion = name + ".txt",
+                    NombreCompresion = name + ".huff",
                     Factor_Compresion = FactorCompresion(BArchivoOriginal, BArchivo),
                     Razon_Compresion = RazonCompresion(BArchivo, BArchivoOriginal),
                 };
@@ -114,7 +114,7 @@ namespace ProyectoAPI.Controllers
         void escribir(string imprimir, string name)
         {
             Singleton.Instance.DireccionNombre = "";
-            Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
+            Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".huff";//Ruta en donde se guardará con el nombre enviado en el post
 
           
 
@@ -127,7 +127,7 @@ namespace ProyectoAPI.Controllers
             try
             {
                 //Open the File
-                StreamWriter sw = new StreamWriter(Singleton.Instance.DireccionNombre, true, Encoding.UTF8);
+                StreamWriter sw = new StreamWriter(Singleton.Instance.DireccionNombre, false, Encoding.UTF8);
 
                 sw.Write(x);
 
@@ -144,6 +144,41 @@ namespace ProyectoAPI.Controllers
             }
 
         }
+
+        void escribirtxt(string imprimir, string name)
+        {
+            Singleton.Instance.DireccionNombre = "";
+            Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".txt";//Ruta en donde se guardará con el nombre enviado en el post
+
+
+
+            Encoding utf8 = Encoding.UTF8;
+            //pasar de string a bytes 
+            Byte[] texto_bytes = utf8.GetBytes(imprimir);
+
+            //pasar de bytes a string
+            string x = Encoding.UTF8.GetString(texto_bytes);
+            try
+            {
+                //Open the File
+                StreamWriter sw = new StreamWriter(Singleton.Instance.DireccionNombre, false, Encoding.UTF8);
+
+                sw.Write(x);
+
+                //close the file
+                sw.Close();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Exception: " + e.Message);
+            }
+            finally
+            {
+                Console.WriteLine("Executing finally block.");
+            }
+
+        }
+
 
         double RazonCompresion(double BArchivo, double BArchivoOriginal)
         {
