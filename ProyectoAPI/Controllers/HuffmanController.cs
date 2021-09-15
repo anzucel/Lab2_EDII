@@ -25,7 +25,7 @@ namespace ProyectoAPI.Controllers
         public IEnumerable<string> Get()
         {
            
-            return new string[] { "value1" };
+            return new string[] { "Laboratorio 2, Huffman-Jason Girón/Andrea Hernández" };
         }
 
 
@@ -54,8 +54,10 @@ namespace ProyectoAPI.Controllers
                 texto = Encoding.UTF8.GetString(texto_bytes);
                 // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
-                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto); 
-                escribir(Descompresion,"Descompreso");
+                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto);
+                //buscar el nombre original
+                Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
+                escribir(Descompresion, nombrecompres.Nombre);
                 return Ok();
             }
             catch (Exception)
