@@ -56,7 +56,11 @@ namespace ProyectoAPI.Controllers
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
                 string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto);
                 //buscar el nombre original
+                //buscar el nombre original
                 Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
+               
+                nombrecompres.Nombre = nombrecompres.Nombre.Split(".").First();
+
                 escribirtxt(Descompresion, nombrecompres.Nombre);
                 return Ok();
             }

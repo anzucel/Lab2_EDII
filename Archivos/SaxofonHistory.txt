@@ -1,0 +1,33 @@
+﻿Partes de un saxofón
+Un saxo está formado de distintas partes, cada una con su función concreta, siendo:
+
+Boquilla: la boquilla del instrumento es la que tiene contacto con la boca del músico, con una cámara 
+usualmente redonda por donde viaja el aire para activar la lengüeta. Pueden ser fabricadas en metal, plásticos, 
+cristal, entre otros, afectando el sonido.
+
+Caña o lengüeta: 
+la lengüeta es la responsable de generar el sonido al moverse con la corriente de aire, saliendo
+por la campana. Las mismas son de distintos tamaños y se fabrican en caña usualmente, teniendo mucha importancia 
+para el sonido y su dureza es relevante para el estilo y gusto del músico.
+
+
+Cuerpo: 
+de latón u otros metales, el cuerpo del saxo es la parte central donde se encuentran los orificios y llaves
+para ejecutarlo.
+
+
+Llaves: 
+mediante las llaves, el músico controla las notas al cubrir o descubrir los orificios, y así tocar el instrumento.
+
+Campana: la campana es la parte más ancha del saxofón, y es por donde sale el sonido que genera el instrumento.
+
+Tipos de saxofón
+
+Hay distintos saxofones afinados en diferentes notas, lo cual determina su tamaño y registro. Los más conocidos son:
+
+Sopranos en Si bemol.
+Tenor en Si bemol (octava por debajo del soprano).
+Barítono en Mi bemol.
+Alto en Mi bemol (octava por encima del barítono).
+Sopranino en Mi bemol (el más agudo de todos).
+Mezzosoprano afinado en Fa.     
