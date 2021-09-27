@@ -19,7 +19,7 @@ namespace Huffman
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
         {
-            Texto = texto_comprimir.Remove(0, 1);
+            Texto = texto_comprimir.Trim(new char[] { '\uFEFF', '\u200B' });
             ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
             Conteo = new ListaDoble<NodoHuffman>();
         }
