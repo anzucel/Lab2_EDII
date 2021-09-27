@@ -1,6 +1,7 @@
 ﻿using System;
 using ListaDobleEnlace;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Huffman
 {
@@ -14,7 +15,8 @@ namespace Huffman
         string txtComprimido = "";
         string txtDescomprimido = "";
         int cant_bytes = 0;
-        Encoding ascii = Encoding.ASCII;
+        //Encoding ascii = Encoding.ASCII;
+        Dictionary<int, string> diccionario = new Dictionary<int, string>();
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
@@ -180,9 +182,9 @@ namespace Huffman
             {
                 //caracter 
                 char aux = Conteo.ObtenerValor(i).caracter; //M = 77
-                string caracter = DecimalBinario(Convert.ToInt32(aux)); // 1001101
+                string caracter = DecimalBinario(Convert.ToInt32(aux), 8); // 1001101
                 //frecuencia 
-                string frecuencia = DecimalBinario(Conteo.ObtenerValor(i).valor); // 10000000
+                string frecuencia = DecimalBinario(Conteo.ObtenerValor(i).valor, 8); // 10000000
 
                 codigo += caracter + frecuencia;
             }
@@ -242,12 +244,113 @@ namespace Huffman
             cant_bytes = CantBytes();
 
             //cant_bytes + \n + caracter \n + frecuencia 
-            string info = DecimalBinario(cant_bytes);/* + "00001010";*/
+            string info = DecimalBinario(cant_bytes, 8);/* + "00001010";*/
             info = info + CodInfo() + "00001010";
             info = Codificar(info,"Leyenda");
             txtComprimido = info + txtComprimido;
             return txtComprimido;
         }
+
+        // Comprimir método LZW
+        private void ConstruirDiccionario()
+        {
+            BubbleSort();
+            //diccionario básico
+            for (int i = 0; i < Conteo.contador; i++)
+            {
+                diccionario.Add(i + 1, Conteo.ObtenerValor(i).caracter.ToString());
+            }
+        }
+
+        private void BubbleSort()
+        {
+            for (int i = 0; i < Conteo.contador - 1; i++)
+            {
+                for (int j = i + 1; j < Conteo.contador; j++)
+                {
+                    if (Conteo.ObtenerValor(i).caracter > Conteo.ObtenerValor(j).caracter)
+                    {
+                        NodoHuffman temporal = Conteo.ExtraerEnPosicion(i).Valor;
+                        Conteo.InsertarEnPosicion(Conteo.ExtraerEnPosicion(j - 1).Valor, i);
+                        Conteo.InsertarEnPosicion(temporal, j);
+                    }
+                }
+            }
+        }
+
+        private int LLavePorValor(Dictionary<int, string> diccionario, string valor)
+        {
+            int llave = 0;
+            foreach (KeyValuePair<int, string> item in diccionario)
+            {
+                if(item.Value == valor)
+                {
+                    llave = item.Key;
+                    break;
+                }
+            }
+            return llave;
+        }
+
+        private string CadenaDecimal()
+        {
+            string clave, cadena = "";
+            int posicion, i = 0;
+            
+            while (i < ArrayTexto.Length)
+            {
+                posicion = i;
+                clave = ArrayTexto[i].ToString();
+                while (diccionario.ContainsValue(clave) && posicion < ArrayTexto.Length - 1)
+                {
+                    posicion++;
+                    clave += ArrayTexto[posicion];
+                }
+                //agrega al diccionario el nuevo valor
+                if (!diccionario.ContainsValue(clave)) diccionario.Add(diccionario.Count + 1, clave);
+                if (i == ArrayTexto.Length - 1) i++;
+                else i = posicion;
+                if (clave.Length > 1) clave = clave.Remove(clave.Length - 1);
+
+                cadena += LLavePorValor(diccionario, clave) + ",";
+            }
+            return cadena;
+        }
+
+        public string ComprimirLzw()
+        {
+            int cant_bits = 0;
+            string cadenaBinaria = "";
+            string txtComprimido = "";
+            string cadenaDecimal;
+            ExtraerCaracteres();
+            ConstruirDiccionario();
+            cadenaDecimal = CadenaDecimal().TrimEnd(',');
+            cant_bits = Convert.ToInt32(Math.Truncate(Math.Sqrt(diccionario.Count)));
+            string[] valores = cadenaDecimal.Split(',');
+
+            for (int i = 0; i < valores.Length; i++)
+            {
+                cadenaBinaria += DecimalBinario(Convert.ToInt32(valores[i]), cant_bits);
+            }
+            // Binario a ASCII
+            cadenaBinaria = Codificar(cadenaBinaria, "Leyenda");
+            string caracteres = "";
+            // Extraer caracteres
+            foreach (var item in Conteo)
+            {
+                caracteres += item.caracter;
+            }
+
+            //Bits de Agrupación + Cant. Caracteres + \n + Caracteres + Texto Codificado
+
+            txtComprimido = Convert.ToChar(cant_bits).ToString() + Convert.ToChar(Conteo.contador).ToString();
+            txtComprimido += caracteres;
+            txtComprimido += cadenaBinaria;
+
+            return txtComprimido;
+        }
+
 
 
         //Parte de descomprimir---------------------------------------------
@@ -367,7 +470,7 @@ namespace Huffman
             Texto = "";
             while (cont < ArrayTexto.Length)
             {
-                string txt = DecimalBinario(ArrayTexto[cont]);
+                string txt = DecimalBinario(ArrayTexto[cont], 8);
                 Texto = Texto + txt;
                 cont++;
             }
@@ -399,9 +502,8 @@ namespace Huffman
             return numero;
         }
 
-
         //Decimal → Binario
-        string DecimalBinario(int numero)
+        string DecimalBinario(int numero, int bits)
         {
 
             long binario = 0;
@@ -416,14 +518,16 @@ namespace Huffman
             }
             string Binario = binario.ToString();
 
-            if (Binario.Length < 8) //autorelleno de los 8 bits
+            // método 1 = Huffman 
+            if (Binario.Length < bits) //autorelleno de los 8 bits
             {
-                int ceros = 8 - Binario.Length;
+                int ceros = bits - Binario.Length;
                 for (int i = 0; i < ceros; i++)
                 {
                     Binario = "0" + Binario;
                 }
             }
+
             binario = Convert.ToInt64(Binario);
             return Binario;
         }
