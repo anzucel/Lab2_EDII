@@ -15,13 +15,11 @@ namespace Huffman
         string txtComprimido = "";
         string txtDescomprimido = "";
         int cant_bytes = 0;
-        //Encoding ascii = Encoding.ASCII;
-        Dictionary<int, string> diccionario = new Dictionary<int, string>();
 
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
         {
-            Texto = texto_comprimir;
+            Texto = texto_comprimir.Remove(0, 1);
             ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
             Conteo = new ListaDoble<NodoHuffman>();
         }
@@ -250,107 +248,6 @@ namespace Huffman
             txtComprimido = info + txtComprimido;
             return txtComprimido;
         }
-
-        // Comprimir método LZW
-        private void ConstruirDiccionario()
-        {
-            BubbleSort();
-            //diccionario básico
-            for (int i = 0; i < Conteo.contador; i++)
-            {
-                diccionario.Add(i + 1, Conteo.ObtenerValor(i).caracter.ToString());
-            }
-        }
-
-        private void BubbleSort()
-        {
-            for (int i = 0; i < Conteo.contador - 1; i++)
-            {
-                for (int j = i + 1; j < Conteo.contador; j++)
-                {
-                    if (Conteo.ObtenerValor(i).caracter > Conteo.ObtenerValor(j).caracter)
-                    {
-                        NodoHuffman temporal = Conteo.ExtraerEnPosicion(i).Valor;
-                        Conteo.InsertarEnPosicion(Conteo.ExtraerEnPosicion(j - 1).Valor, i);
-                        Conteo.InsertarEnPosicion(temporal, j);
-                    }
-                }
-            }
-        }
-
-        private int LLavePorValor(Dictionary<int, string> diccionario, string valor)
-        {
-            int llave = 0;
-            foreach (KeyValuePair<int, string> item in diccionario)
-            {
-                if(item.Value == valor)
-                {
-                    llave = item.Key;
-                    break;
-                }
-            }
-            return llave;
-        }
-
-        private string CadenaDecimal()
-        {
-            string clave, cadena = "";
-            int posicion, i = 0;
-            
-            while (i < ArrayTexto.Length)
-            {
-                posicion = i;
-                clave = ArrayTexto[i].ToString();
-                while (diccionario.ContainsValue(clave) && posicion < ArrayTexto.Length - 1)
-                {
-                    posicion++;
-                    clave += ArrayTexto[posicion];
-                }
-                //agrega al diccionario el nuevo valor
-                if (!diccionario.ContainsValue(clave)) diccionario.Add(diccionario.Count + 1, clave);
-                if (i == ArrayTexto.Length - 1) i++;
-                else i = posicion;
-                if (clave.Length > 1) clave = clave.Remove(clave.Length - 1);
-
-                cadena += LLavePorValor(diccionario, clave) + ",";
-            }
-            return cadena;
-        }
-
-        public string ComprimirLzw()
-        {
-            int cant_bits = 0;
-            string cadenaBinaria = "";
-            string txtComprimido = "";
-            string cadenaDecimal;
-            ExtraerCaracteres();
-            ConstruirDiccionario();
-            cadenaDecimal = CadenaDecimal().TrimEnd(',');
-            cant_bits = Convert.ToInt32(Math.Truncate(Math.Sqrt(diccionario.Count)));
-            string[] valores = cadenaDecimal.Split(',');
-
-            for (int i = 0; i < valores.Length; i++)
-            {
-                cadenaBinaria += DecimalBinario(Convert.ToInt32(valores[i]), cant_bits);
-            }
-            // Binario a ASCII
-            cadenaBinaria = Codificar(cadenaBinaria, "Leyenda");
-            string caracteres = "";
-            // Extraer caracteres
-            foreach (var item in Conteo)
-            {
-                caracteres += item.caracter;
-            }
-
-            //Bits de Agrupación + Cant. Caracteres + \n + Caracteres + Texto Codificado
-
-            txtComprimido = Convert.ToChar(cant_bits).ToString() + Convert.ToChar(Conteo.contador).ToString();
-            txtComprimido += caracteres;
-            txtComprimido += cadenaBinaria;
-
-            return txtComprimido;
-        }
-
 
 
         //Parte de descomprimir---------------------------------------------
