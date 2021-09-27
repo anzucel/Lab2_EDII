@@ -7,7 +7,7 @@ namespace PruebaConsola
     {
         static void Main(string[] args)
         {
-            string cadena_texto = "Como poco coco como\npoco coco compro\nComo compro poco coco\npoco coco como";//"yo dono rosas, oro no doy";
+            string cadena_texto = "yo dono rosas, oro no doy";//"Como poco coco como\npoco coco compro\nComo compro poco coco\npoco coco como";
             string msj_comprimido;
             string msj_descomprimido;
 

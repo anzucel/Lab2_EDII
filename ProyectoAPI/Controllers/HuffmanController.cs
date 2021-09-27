@@ -71,20 +71,22 @@ namespace ProyectoAPI.Controllers
         }
 
         [HttpPost]
-        [Route("compress/{name}")]
-        public IActionResult PostFileCompress([FromForm] IFormFile File, [FromRoute] string name)
+        [Route("{method}/compress/{name}")]
+        public IActionResult PostFileCompress([FromForm] IFormFile File, [FromRoute] string name, [FromRoute] string method)
         {
             using var archivo = new MemoryStream();
             try
             {
                 File.CopyToAsync(archivo);
                 var coleccion = Encoding.UTF8.GetString(archivo.ToArray()); //pasa el texto a cadena 
-                Byte[] texto_bytes = utf8.GetBytes(coleccion); // texto a bytes 
+                Byte[] texto_bytes = Encoding.UTF8.GetBytes(coleccion);//utf8.GetBytes(coleccion); // texto a bytes 
                 string texto = "";
                 texto = Encoding.UTF8.GetString(texto_bytes);
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
-                string Compresion = Singleton.Instance.huffman_CD.Comprimir();              
-                escribir(Compresion, name);
+                string Compresion = "";
+                if (method == "huffman") { Compresion = Singleton.Instance.huffman_CD.Comprimir(); }
+                if (method == "lzw") { Compresion = Singleton.Instance.huffman_CD.ComprimirLzw(); }
+                escribir(Compresion, name, method);
                 //Crear el nuevo archivo .huff
 
                 //agregar a la lista para crear el json--------------->
@@ -96,12 +98,17 @@ namespace ProyectoAPI.Controllers
                 {
                     Nombre = File.FileName,
                     Ruta = Singleton.Instance.DireccionNombre,
-                    NombreCompresion = name + ".huff",
+                    //NombreCompresion = name + ".huff",
                     Factor_Compresion = FactorCompresion(BArchivoOriginal, BArchivo),
                     Razon_Compresion = RazonCompresion(BArchivo, BArchivoOriginal),
                 };
                 double porcentaje = nuevo.Razon_Compresion * 100;
                 nuevo.Porcentaje_reduccion = Convert.ToString(porcentaje + "%");
+
+                if (method == "huffman")
+                    nuevo.NombreCompresion = name + ".huff";
+                if (method == "lzw")
+                    nuevo.NombreCompresion = name + ".lzw";
 
                 Singleton.Instance.Historial.Add(nuevo);
                 return Ok();
@@ -115,12 +122,12 @@ namespace ProyectoAPI.Controllers
 
 
         ///Metodos guardar
-        void escribir(string imprimir, string name)
+        void escribir(string imprimir, string name, string metodo)
         {
             Singleton.Instance.DireccionNombre = "";
-            Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".huff";//Ruta en donde se guardará con el nombre enviado en el post
+            if (metodo == "huffman") Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".huff";//Ruta en donde se guardará con el nombre enviado en el post
+            if (metodo == "lzw") Singleton.Instance.DireccionNombre = "../Archivos/" + name + ".lzw";
 
-          
 
             Encoding utf8 = Encoding.UTF8;
             //pasar de string a bytes 

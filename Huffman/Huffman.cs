@@ -21,7 +21,7 @@ namespace Huffman
         //constructor, recibe texto que será compreso/descompreso
         public Huffman(string texto_comprimir)
         {
-            Texto = texto_comprimir;
+            Texto = texto_comprimir.Trim(new char[] { '\uFEFF', '\u200B' });//.Remove(0,1);
             ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
             Conteo = new ListaDoble<NodoHuffman>();
         }
@@ -342,10 +342,12 @@ namespace Huffman
                 caracteres += item.caracter;
             }
 
-            //Bits de Agrupación + Cant. Caracteres + \n + Caracteres + Texto Codificado
+            //Bits de Agrupación + Cant. Caracteres + \n + Caracteres + \n + Texto Codificado
 
             txtComprimido = Convert.ToChar(cant_bits).ToString() + Convert.ToChar(Conteo.contador).ToString();
+            txtComprimido += Codificar("00001010", "Leyenda");
             txtComprimido += caracteres;
+            txtComprimido += Codificar("00001010", "Leyenda");
             txtComprimido += cadenaBinaria;
 
             return txtComprimido;
