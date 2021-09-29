@@ -15,6 +15,7 @@ namespace Huffman
         string txtComprimido = "";
         string txtDescomprimido = "";
         int cant_bytes = 0;
+        int N_Bits = 0;
         //Encoding ascii = Encoding.ASCII;
         Dictionary<int, string> diccionario = new Dictionary<int, string>();
 
@@ -143,7 +144,7 @@ namespace Huffman
                     {
                         for (int j = 0; j < agregar; j++)
                         {
-                            aux = 0 + aux; 
+                            aux = aux+0; 
                         }
                     }
                     else
@@ -326,7 +327,8 @@ namespace Huffman
             ExtraerCaracteres();
             ConstruirDiccionario();
             cadenaDecimal = CadenaDecimal().TrimEnd(',');
-            cant_bits = Convert.ToInt32(Math.Truncate(Math.Sqrt(diccionario.Count)));
+         //   cant_bits = Convert.ToInt32(Math.Truncate(Math.Sqrt(diccionario.Count)));
+            cant_bits = Convert.ToInt32(Math.Round(Math.Log2(diccionario.Count), 1, MidpointRounding.ToEven));
             string[] valores = cadenaDecimal.Split(',');
 
             for (int i = 0; i < valores.Length; i++)
@@ -345,7 +347,7 @@ namespace Huffman
             //Bits de Agrupación + Cant. Caracteres + \n + Caracteres + \n + Texto Codificado
 
             txtComprimido = Convert.ToChar(cant_bits).ToString() + Convert.ToChar(Conteo.contador).ToString();
-            txtComprimido += Codificar("00001010", "Leyenda");
+          //   txtComprimido += Codificar("00001010", "Leyenda");
             txtComprimido += caracteres;
             txtComprimido += Codificar("00001010", "Leyenda");
             txtComprimido += cadenaBinaria;
@@ -355,8 +357,75 @@ namespace Huffman
 
 
 
-        //Parte de descomprimir---------------------------------------------
-        public string Descomprimir(string texto)
+        public string Descomprimir_LZW(string texto)
+        {
+            int cant_bits= Convert.ToInt32(ArrayTexto[0]);// Números de bits que se usaron 
+            
+            DescomprimirCaracteresLZW();
+            ConstruirDiccionario();
+            DecodificarLZW(cant_bits);
+
+
+
+            return txtDescomprimido;
+        }
+        public string DecodificarLZW( int cant_bits)
+        {
+            
+            string previo = "";
+            string actual = "";
+            string nuevo = "";
+            string textosub = "";
+            bool load = false;
+
+
+
+
+            while (Texto.Length > cant_bits)
+            {
+
+
+                textosub = Texto.Substring(0, cant_bits);
+                Texto = Texto.Remove(0, cant_bits);
+                int letra =BinarioDecimal(Convert.ToInt32(textosub));
+                if (letra != 0)
+                {
+                    //manejo de la exepcion
+                    if (letra > diccionario.Count)
+                    {
+                        previo = actual;
+                        nuevo = previo + previo.Substring(0, 1);
+                        actual = nuevo;
+                        diccionario.Add(diccionario.Count + 1, nuevo);
+                        txtDescomprimido += diccionario[letra];
+                    }
+                    else
+                    {
+                        txtDescomprimido += diccionario[letra];
+
+                        previo = actual;
+                        actual = diccionario[letra];
+
+                        if (load == true)
+                        {
+                            nuevo = previo + actual.Substring(0, 1);
+                            diccionario.Add(diccionario.Count + 1, nuevo);
+                        }
+                        
+                        load = true;
+                    }
+                }
+            }
+
+
+                return txtDescomprimido;
+        }
+
+
+
+
+
+            public string Descomprimir(string texto)
         {
             Texto = texto;
             ArrayTexto = Texto.ToCharArray();    //Texto a arreglo
@@ -466,6 +535,43 @@ namespace Huffman
                     }
                     Caracter.valor = valor;
                     Conteo.InsertarFinal(Caracter);
+                }
+            }
+            cont++;
+            Texto = "";
+            while (cont < ArrayTexto.Length)
+            {
+                string txt = DecimalBinario(ArrayTexto[cont], 8);
+                Texto = Texto + txt;
+                cont++;
+            }
+
+
+
+        }
+
+
+        private void DescomprimirCaracteresLZW()
+        {
+             
+            int diccionarioLong = Convert.ToInt32(ArrayTexto[1]);
+            bool salir = false;
+
+
+            int cont = 2; //Letras y sus frecuencias
+            while (salir == false)
+            {
+                if (Convert.ToString(ArrayTexto[cont]) == "\n" && Convert.ToString(ArrayTexto[cont +1]) != "\r")
+                {
+                    salir = true;
+                }
+                else
+                {                    
+                    NodoHuffman Caracter = new NodoHuffman();
+                    Caracter.valor = ArrayTexto[cont];
+                    Caracter.caracter = ArrayTexto[cont];
+                    Conteo.InsertarFinal(Caracter);
+                    cont++;
                 }
             }
             cont++;

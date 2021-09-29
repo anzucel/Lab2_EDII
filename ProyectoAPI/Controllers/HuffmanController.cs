@@ -41,20 +41,24 @@ namespace ProyectoAPI.Controllers
         // POST api/<Huffman>
 
         [HttpPost]
-        [Route("decompress")]
-        public IActionResult PostFileDecompress([FromForm] IFormFile File)
+        [Route("{method}/decompress")]
+        public IActionResult PostFileDecompress([FromForm] IFormFile File, [FromRoute] string method)
         {
             using var archivo = new MemoryStream();
             try
             {
+                
                 File.CopyToAsync(archivo);
                 var coleccion = Encoding.UTF8.GetString(archivo.ToArray());  //pasa el texto a cadena
                 Byte[] texto_bytes = utf8.GetBytes(coleccion); // texto a bytes
                 string texto = "";
                 texto = Encoding.UTF8.GetString(texto_bytes);
-                // Singleton.Instance.huffman_CD = new Huffman.Huffman(coleccion);
                 Singleton.Instance.huffman_CD = new Huffman.Huffman(texto);
-                string Descompresion = Singleton.Instance.huffman_CD.Descomprimir(texto);
+                string Descompresion = ""; //variable para guardar la descompresión
+
+                if (method == "huffman") { Descompresion= Singleton.Instance.huffman_CD.Descomprimir(texto); }
+                if (method == "lzw") { Descompresion = Singleton.Instance.huffman_CD.Descomprimir_LZW(texto); }
+                
                 //buscar el nombre original
                 //buscar el nombre original
                 Compresiones nombrecompres = Singleton.Instance.Historial.Where(x => x.NombreCompresion == File.FileName).FirstOrDefault<Compresiones>();
